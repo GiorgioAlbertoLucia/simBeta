@@ -1,0 +1,11 @@
+#
+# Macro file for example B3 test
+#
+/run/initialize
+#
+/control/verbose 2
+#
+/gun/particle e-
+/gun/energy 2 MeV
+/run/printProgress 10000
+/run/beamOn 100000

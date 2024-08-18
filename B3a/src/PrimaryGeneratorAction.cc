@@ -48,21 +48,20 @@ namespace B3
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-PrimaryGeneratorAction::PrimaryGeneratorAction()
+PrimaryGeneratorAction::PrimaryGeneratorAction(const char * filename)
 {
   G4int n_particle = 1;
   fParticleGun = new G4ParticleGun(n_particle);
 
   // default particle kinematic
-  
-
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
   G4ParticleDefinition* particle = particleTable->FindParticle("e-");
   fParticleGun->SetParticleDefinition(particle);
   fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., 0.));
   fParticleGun->SetParticleEnergy(1 * MeV);
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0., 0., 1.));
-  
+
+  this->ReadBetaSpectrum(filename);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -70,6 +69,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
   delete fParticleGun;
+  delete fBetaSpectrum;
 }
 
 G4ThreeVector PrimaryGeneratorAction::GenerateIsotropicDirection( G4double thetaMin,
@@ -101,7 +101,7 @@ G4ThreeVector PrimaryGeneratorAction::GenerateIsotropicDirection( G4double theta
    return randDir;
 }     
 
-G4double PrimaryGeneratorAction::readBetaSpectrum(const char* filename, const char* histname) {
+void PrimaryGeneratorAction::ReadBetaSpectrum(const char* filename) {
     std::ifstream betaFile(filename);
     if (!betaFile.is_open()) {
         std::cerr << "Error: could not open file " << filename << std::endl;
@@ -119,7 +119,6 @@ G4double PrimaryGeneratorAction::readBetaSpectrum(const char* filename, const ch
         iss >> tmpW;
         energies.push_back(tmpE);
         weights.push_back(tmpW);
-        // std::cout << "Energy: " << tmpE << " Weight: " << tmpW << std::endl;
         nBins++;
     }
 
@@ -129,14 +128,10 @@ G4double PrimaryGeneratorAction::readBetaSpectrum(const char* filename, const ch
     }
     binEdges.push_back(energies[nBins-1] + (energies[nBins-1] - energies[nBins-2]));
 
-    TH1F* hist = new TH1F(histname, "Beta spectrum", nBins, &binEdges[0]);
+    fBetaSpectrum = new TH1F("fBetaSpectrum", "Beta spectrum", nBins, &binEdges[0]);
     for (int ibin = 0; ibin < nBins; ibin++) {
-        hist->SetBinContent(ibin+1, weights[ibin]);
+        fBetaSpectrum->SetBinContent(ibin+1, weights[ibin]);
     }
-    
-    double randE = hist->GetRandom();
-    delete hist;
-    return randE;
 }
 
 
@@ -180,7 +175,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
   fParticleGun->SetParticleMomentumDirection(direction);
 
   
-  G4double randE = readBetaSpectrum("/home/vito-bng/Simulations/simBeta/B3a/build/betaSpectrum.dat", "betaHist");
+  G4double randE = fBetaSpectrum->GetRandom();
   // double randE = betaHist->GetRandom();
   fParticleGun->SetParticleEnergy(randE);
   // create vertex

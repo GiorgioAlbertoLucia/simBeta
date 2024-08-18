@@ -2,9 +2,8 @@
 /run/initialize
 /control/execute vis.mac
 /vis/open
-/vis/sceneHandler/create OGL
+/vis/sceneHandler/create TSG_OFFSCREEN
 /vis/viewer/create ! ! 600x600-0+0
-/vis/viewer/refresh
 /vis/viewer/set/autoRefresh false
 /vis/verbose errors
 /vis/drawVolume
@@ -25,5 +24,16 @@
 /vis/scene/notifyHandlers scene-0
 /vis/scene/endOfEventAction accumulate
 /vis/viewer/set/autoRefresh true
-/vis/viewer/refresh
 /vis/verbose warnings
+/control/execute run1.mac
+/run/initialize
+/control/verbose 2
+/tracking/verbose 2
+/run/beamOn 1
+/vis/scene/notifyHandlers scene-0
+/analysis/h1/getVector
+/analysis/h2/getVector
+/tracking/verbose 0
+/run/beamOn 20
+/analysis/h1/getVector
+/analysis/h2/getVector

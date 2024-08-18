@@ -17,11 +17,17 @@ else()
 endif()
 
 #----------------------------------------------------------------------------
+# Find ROOT (required package)
+#
+find_package(ROOT REQUIRED)
+
+#----------------------------------------------------------------------------
 # Setup Geant4 include directories and compile definitions
 # Setup include directory for this project
 #
 include(${Geant4_USE_FILE})
-include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/include
+                    ${ROOT_INCLUDE_DIRS})
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
@@ -29,12 +35,25 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 #
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
+file(GLOB data_files ${PROJECT_SOURCE_DIR}/codes/*.dat)
+
+#----------------------------------------------------------------------------
+# XceresC library (installed with homebrew)
+#
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
+set(CMAKE_INSTALL_RPATH "/opt/homebrew/lib")
+
+find_package(XercesC REQUIRED)
+
+include_directories(${XercesC_INCLUDE_DIRS})
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(exampleB3a exampleB3a.cc ${sources} ${headers})
-target_link_libraries(exampleB3a ${Geant4_LIBRARIES})
+target_link_libraries(exampleB3a ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${XercesC_LIBRARIES})
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we

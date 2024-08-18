@@ -56,22 +56,25 @@ namespace B3
 class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
   public:
-    PrimaryGeneratorAction();
+    PrimaryGeneratorAction(const char* filenamene = "/Users/glucia/Projects/simBeta/B3a/codes/betaSpectrum.dat");
     ~PrimaryGeneratorAction() override;
 
     void GeneratePrimaries(G4Event*) override;
 
     const G4ParticleGun* GetParticleGun() const { return fParticleGun; }
 
+  protected: 
+    void ReadBetaSpectrum(const char* filename);
+
   private:
     G4ParticleGun* fParticleGun = nullptr;
+    TH1F* fBetaSpectrum = nullptr;
    
   G4ThreeVector GenerateIsotropicDirection( G4double thetaMin = 0,
                                               G4double thetaMax = M_PI,
                                               G4double phiMin = 0,
                                               G4double phiMax = 2.*M_PI);
   
-  G4double readBetaSpectrum(const char* filename, const char* histname);
 };
 
 }  // namespace B3
